@@ -1,0 +1,1151 @@
+
+openapi: 3.0.1
+info:
+  title: XC1 Data forwarding monitoring API
+  description: API for monitoring and creating filter configurations
+  version: 1.0.0
+servers:
+  - url:
+paths:
+  /api/v1/monitoring/filters:
+    get:
+      summary: Get all filters
+      operationId: getFilters
+      parameters:
+        - name: Orgid
+          in: header
+          schema:
+            type: string
+          required: true
+          description: ID of an organization
+      responses:
+        '200':
+          description: A list of filters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: '1AAAAAAAAAAAAAAAA'
+                        creator:
+                          type: string
+                          example: 'USERID'
+                        description:
+                          type: string
+                          example: ''
+                        name:
+                          type: string
+                          example: ''
+                        privacy:
+                          type: string
+                          example: 'public'
+                        _lang_en:
+                          type: object
+                          properties:
+                            privacy:
+                              type: string
+                              example: 'public'
+                        _links:
+                          type: object
+                          properties:
+                            rel:
+                              type: string
+                              example: 'self'  
+                            uri:
+                              type: string
+                              example: '/api/v1/monitoring/filters/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+                  _metadata:
+                    type: object
+    post:
+      summary: Create a new filter configuration
+      operationId: createFilters
+      parameters:
+        - name: Orgid
+          in: header
+          schema:
+            type: string
+          required: true
+          description: ID of an organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: string
+                  example: |
+                    includeAttributes=severityKey,serviceKey
+                    &filterEquals[0][attributes]=severityKey&filterEquals[0][values]=Warning,Critical
+                    &filterEquals[0][attributes]=serviceKey&filterEquals[0][values]=User
+                    &filterEquals[0][attributes]=eventClass&filterEquals[0][values]=Memory
+                privacy:
+                  type: string
+                  example: public
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 12345
+                  filter:
+                    type: string
+                    example: |
+                      includeAttributes=severityKey,serviceKey
+                      &filterEquals[0][attributes]=severityKey&filterEquals[0][values]=Warning,Critical
+                      &filterEquals[0][attributes]=serviceKey&filterEquals[0][values]=User
+                      &filterEquals[0][attributes]=eventClass&filterEquals[0][values]=Memory
+                  privacy:
+                    type: string
+                    example: public
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid input
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Missing input
+  /api/v1/monitoring/filters/{filterId}:
+    get:
+      summary: Retrieve monitoring filter details with Ids
+      operationId: getMonitoringFilter
+      parameters:
+        - name: Orgid
+          in: header
+          schema:
+            type: string
+          required: true
+          description: ID of an organization
+      parameters:
+        - name: filterId
+          in: path
+          required: true  
+          schema:
+            type: string
+          description: ID of the monitoring filter to retrieve
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '5DD6740ADAC31D24C5407465'
+                  creator:
+                    type: string
+                    example: 'USER1'
+                  description:
+                    type: string
+                    example: ''
+                  filter:
+                    type: string
+                    example: 'includeAttributes=severity,servicefilterEquals[0][attributes]=severity&amp;filterEquals[0][values]=warning,criticalfilterEquals[0][attributes]=service&amp;filterEquals[0][values]=userfilterEquals[0][attributes]=eventClass&amp;filterEquals[0][values]=memory'
+                  name:
+                    type: string
+                    example: ''
+                  privacy:
+                    type: string
+                    example: 'public'
+                  _lang_en:
+                    type: object
+                    properties:
+                      privacy:
+                        type: string
+                        example: 'public'
+                  _links:
+                    type: object
+                    properties:
+                      rel:
+                        type: string
+                        example: 'self'
+                      uri:
+                        type: string
+                        example: '/api/v1/monitoring/filters/5DD6740ADAC31D24C5407465'
+        '404':
+          description: Filter not found
+    put:
+      summary: Update resources with filters id's
+      parameters:
+        - name: Orgid
+          in: header
+          schema:
+            type: string
+          required: true
+          description: ID of an organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  type: string
+                  example: "includeAttributes=severityKey,serviceKey&filterEquals[0][attributes]=severityKey&filterEquals[0][values]=Warning,Critical&filterEquals[1][attributes]=serviceKey&filterEquals[1][values]=User&filterEquals[2][attributes]=eventClass&filterEquals[2][values]=Memory"
+      responses:
+        '200':
+          description: Updated successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+    delete:
+      summary: Delete a specfic data forwarder by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the resource to delete
+      responses:
+        '204':
+          description: Resource deleted successfully
+        '404':
+          description: Resource not found
+  /api/v1/outbound/forwarderConnections:
+    post:
+      summary: To test the connection between XClarity One and the forwarder destination.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                configuration:
+                  type: object
+                  properties:
+                    authentication:
+                      type: object
+                      properties:
+                        password:
+                          type: string
+                           example: '*****'
+                          description: The password for authentication
+                        type:
+                          type: string
+                          enum: [basic]
+                          example : 'basic'
+                          description: The type of authentication
+                        username:
+                          type: string
+                          example: 'admin'
+                          description: The username for authentication
+                    method:
+                      type: string
+                      example : 'POST'
+                      description: The HTTP method (e.g., POST)
+                    timeout:
+                      type: integer
+                      example : '60'
+                      description: The timeout duration in seconds
+                    url:
+                      type: string
+                      example: 'htttps://service.company.com:443/forward_events'
+                      format: uri
+                      description: The URL to forward events to
+                description:
+                  type: string
+                  example: ''
+                  description: Description of the REST forwarder
+                name:
+                  type: string
+                  example: 'Test REST Forwarder'
+                  description: Name of the REST forwarder
+                type:
+                  type: string
+                  example: 'restforwarder'
+                  enum: [restForwarder]
+                  description: Type of the forwarder
+
+      responses:
+        '200':
+          description: Successfully forwarded events
+        '400':
+          description: Bad request, check your parameters
+  /api/v1/outbound/forwarders:
+    get:
+      summary: Retrieve forwarders
+      operationId: getForwarders
+      parameters:
+        - name: Orgid
+          in: header
+          schema:
+            type: string
+          required: true
+          description: ID of an organization
+      responses:
+        '200':
+          description: A list of forwarders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 5DD6740ADAC31D24C5407465
+                        createdBy:
+                          type: string
+                          example: hazel@acme.com
+                        createdTimeStamp:
+                          type: string
+                          format: date-time
+                          example: 2023-02-06T11:36:00.533Z
+                        description:
+                          type: string
+                          example: ""
+                        filter:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 211d2106-453a-42a8-812e-4a247520e541
+                            uri:
+                              type: string
+                              example: /api/v1/monitoring/filters/211d2106-453a-42a8-812e-4a247520e541
+                        forwarderDestination:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: 474b2a76-738f-4e98-8ea5-339f917bedea
+                            path:
+                              type: string
+                              example: john@acme.com, jane@acme.com
+                            uri:
+                              type: string
+                              example: /api/v1/outbound/forwarderDestinations/474b2a76-738f-4e98-8ea5-339f917bedea
+                        lastUpdatedTimeStamp:
+                          type: string
+                          format: date-time
+                          nullable: true
+                          example: null
+                        name:
+                          type: string
+                          example: REST_forwarder
+                        state:
+                          type: string
+                          example: Enabled
+                        type:
+                          type: string
+                          example: restForwarder
+                        updatedBy:
+                          type: string
+                          nullable: true
+                          example: null
+                        _links:
+                          type: object
+                          properties:
+                            rel:
+                              type: string
+                              example: self
+                            uri:
+                              type: string
+                              example: /api/v1/forwarders/5DD6740ADAC31D24C5407465
+                        _ui:
+                          type: object
+                          properties:
+                            stateKey:
+                              type: string
+                              example: enabled
+                            typeKey:
+                              type: string
+                              example: REST forwarder
+                  _metadata:
+                    type: object
+    post:
+      summary: Create a new forwarder
+      operationId: createForwarder
+      requestBody:
+        description: Request body for creating a forwarder
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: Description of the forwarder
+                filter:
+                  type: string
+                  description: Filter for the forwarder
+                forwarderDestination:
+                  type: string
+                  format: uuid
+                  description: Destination UUID for the forwarder
+                name:
+                  type: string
+                  description: Name of the forwarder
+                  example: REST_forwarder
+                state:
+                  type: string
+                  description: State of the forwarder
+                  enum: [enabled, disabled]
+                  example: enabled
+              required:
+                - forwarderDestination
+                - name
+                - state
+      responses:
+        '201':
+          description: Forwarder created successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+        '409':
+          description: 'Conflict'
+  /api/v1/outbound/forwarder/{id}:
+    get:
+      summary: Retrieve forwarder details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forwarder ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A JSON object containing forwarder details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 5DD6740ADAC31D24C5407465
+                  createdBy:
+                    type: string
+                    example: hazel@acme.com
+                  createdTimeStamp:
+                    type: string
+                    format: date-time
+                    example: 2023-02-06T11:36:00.533Z
+                  description:
+                    type: string
+                    example: ""
+                  filter:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 211d2106-453a-42a8-812e-4a247520e541
+                      uri:
+                        type: string
+                        example: /api/v1/monitoring/filters/211d2106-453a-42a8-812e-4a247520e541
+                  forwarderDestination:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 474b2a76-738f-4e98-8ea5-339f917bedea
+                      path:
+                        type: string
+                        example: john@acme.com, jane@acme.com
+                      uri:
+                        type: string
+                        example: /api/v1/outbound/forwarderDestinations/474b2a76-738f-4e98-8ea5-339f917bedea
+                  lastUpdatedTimeStamp:
+                    type: string
+                    format: date-time
+                    nullable: true
+                    example: null
+                  name:
+                    type: string
+                    example: Email_forwarder
+                  state:
+                    type: string
+                    example: Enabled
+                  type:
+                    type: string
+                    example: restForwarder
+                  updatedBy:
+                    type: string
+                    nullable: true
+                    example: null
+                  _lang_en:
+                    type: object
+                    properties:
+                      state:
+                        type: string
+                        example: Enabled
+                      type:
+                        type: string
+                        example: REST forwarder
+                  _links:
+                    type: object
+                    properties:
+                      rel:
+                        type: string
+                        example: self
+                      uri:
+                        type: string
+                        example: /api/v1/forwarders/5DD6740ADAC31D24C5407465
+        '404':
+          description: Forwarder not found
+    put:
+      summary: Update the device forwarder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceFilter:
+                  type: string
+                  example: "53EB4B21CCDF11EAA386B6A9B6AB7C3B"
+                forwarderDestination:
+                  type: string
+                  example: "474b2a76-738f-4e98-8ea5-339f917bedea"
+      responses:
+        '200':
+          description: Successful update
+        '400':
+          description: Bad request
+        '404':
+          description: Not found
+    patch:
+      summary: Update a resource's state
+      description: Update the state of a resource to "enabled".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  op:
+                    type: string
+                    enum: [replace]
+                  path:
+                    type: string
+                  value:
+                    type: string
+                    enum: [enabled]
+                required:
+                  - op
+                  - path
+                  - value
+      responses:
+        '200':
+          description: Resource updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    delete:
+      summary: Delete a specfic data forwarder 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the resource to delete
+      responses:
+        '204':
+          description: Resource deleted successfully
+        '404':
+          description: Resource not found 
+        '403':
+          description: Forbidden 
+        '400':
+          description: Bad request
+  /api/v1/outbound/forwarderDestinations:
+    get:
+      summary: Return a list of all destinations for forwarding report.
+      responses:
+        '200':
+          description: A list of forwarder destinations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "65f1f45fdd01ab628cc8239a"
+                        certificate:
+                          type: string
+                          example: "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----"
+                        configuration:
+                          type: object
+                          properties:
+                            authentication:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  example: "basic"
+                                username:
+                                  type: string
+                                  example: "ADMIN"
+                            method:
+                              type: string
+                              example: "POST"
+                            timeout:
+                              type: integer
+                              example: 60
+                            url:
+                              type: string
+                              example: "htttps://service.company.com:443/forward_events"
+                            fromUser:
+                              type: string
+                              example: "noreply@xc1mail.lenovo.com"
+                            recipients:
+                              type: string
+                              example: "userA@company.com, admin@company.com"
+                        creationTimestamp:
+                          type: string
+                          format: date-time
+                          example: "2024-03-14T18:48:29.615038Z"
+                        description:
+                          type: string
+                          example: ""
+                        name:
+                          type: string
+                          example: "Test REST forwarder"
+                        type:
+                          type: string
+                          example: "restForwarder"
+                        _lang_en:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                              example: "REST forwarder"
+                        _links:
+                          type: object
+                          properties:
+                            rel:
+                              type: string
+                              example: "self"
+                            uri:
+                              type: string
+                              example: "/api/v1/outbound/forwarderDestinations/474b2a76-738f-4e98-8ea5-339f917bedea" 
+    post:
+      summary: Forward events to a specified service REST destination
+      description: This endpoint allows you to forward events to a specified service.
+      requestBody:
+        description: Forwarder configuration details
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RestForwarder'
+                - $ref: '#/components/schemas/SMTPForwarder'
+            schema:
+              type: object
+              properties:
+                certificate:
+                  type: string
+                  description: The certificate used for authentication
+                  example: |
+                    -----BEGIN CERTIFICATE-----
+                    MIIC+DCCAeCgAwIBAgIJALt9SPb1... 
+                    -----END CERTIFICATE-----
+                configuration:
+                  type: object
+                  properties:
+                    authentication:
+                      type: object
+                      properties:
+                        password:
+                          type: string
+                          description: The password for authentication
+                          example: "********"
+                        type:
+                          type: string
+                          description: The authentication type
+                          example: basic
+                        username:
+                          type: string
+                          description: The username for authentication
+                          example: ADMIN
+                    method:
+                      type: string
+                      description: The HTTP method to be used
+                      example: POST
+                    timeout:
+                      type: integer
+                      description: The timeout duration in seconds
+                      example: 60
+                    url:
+                      type: string
+                      description: The URL to forward the events to
+                      example: https://service.company.com:443/forward_events
+                description:
+                  type: string
+                  description: A description of the forwarder
+                  example: ""
+                name:
+                  type: string
+                  description: The name of the forwarder
+                  example: Test REST Forwarder
+                type:
+                  type: string
+                  description: The type of forwarder
+                  example: restForwarder
+              required:
+                - certificate
+                - configuration
+                - name
+                - type
+      responses:
+        '201':
+          description: Configuration created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 1
+                  name:
+                    type: string
+                    example: Test REST Forwarder
+                  type:
+                    type: string
+                    example: restForwarder
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid request
+    
+        '201':
+          description: Configuration created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 1
+                  configuration:
+                    type: object
+                    properties:
+                      recipients:
+                        type: string
+                        example: userA@company.com, admin@company.com
+                  type:
+                    type: string
+                    example: SMTPForwarder
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Bad request              
+  /api/v1/outbound/forwarderDestinations/{id}:
+    get:
+      summary: Get forwarder destination by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the forwarder destination
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/RestForwarder'
+                  - $ref: '#/components/schemas/SmtpForwarder'
+    put:
+      summary: Update a forwarder
+      description: Update an existing forwarder with the specified ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the forwarder to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/RestForwarder'
+                - $ref: '#/components/schemas/SMTPForwarder'
+      responses:
+        '200':
+          description: Forwarder updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForwarderResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Forwarder not found
+    delete:
+      summary: Delete a forwarder
+      description: Delete an existing forwarder with the specified ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the forwarder to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Forwarder deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          description: Forwarder not found
+components:
+  schemas:
+    RestForwarder:
+      type: object
+      properties:
+        certificate:
+          type: string
+          description: The certificate
+        configuration:
+          type: object
+          properties:
+            authentication:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: Password for authentication
+                type:
+                  type: string
+                  description: Type of authentication
+                username:
+                  type: string
+                  description: Username for authentication
+            method:
+              type: string
+              description: HTTP method to use
+            timeout:
+              type: integer
+              description: Timeout in seconds
+            url:
+              type: string
+              description: URL to forward events to
+        description:
+          type: string
+          description: Description of the forwarder
+        name:
+          type: string
+          description: Name of the forwarder
+        type:
+          type: string
+          enum: [restForwarder]
+          description: Type of the forwarder
+      required:
+        - certificate
+        - configuration
+        - name
+        - type
+
+    SMTPForwarder:
+      type: object
+      properties:
+        configuration:
+          type: object
+          properties:
+            recipients:
+              type: string
+              description: Comma-separated list of email recipients
+        type:
+          type: string
+          enum: [SMTPForwarder]
+          description: Type of the forwarder
+      required:
+        - configuration
+        - type
+
+    ForwarderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the forwarder
+        message:
+          type: string
+          description: Response message
+    DeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+components:
+  schemas:
+    RestForwarder:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "474b2a76-738f-4e98-8ea5-339f917faedc"
+        certificate:
+          type: string
+          example: "-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----"
+        configuration:
+          type: object
+          properties:
+            authentication:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "basic"
+                username:
+                  type: string
+                  example: "ADMIN"
+            method:
+              type: string
+              example: "POST"
+            timeout:
+              type: integer
+              example: 60
+            url:
+              type: string
+              example: "https://service.company.com:443/forward_events"
+        creationTimestamp:
+          type: string
+          format: date-time
+          example: "2022-05-02T19:28:14.000Z"
+        description:
+          type: string
+          example: ""
+        name:
+          type: string
+          example: "Test REST Forwarder"
+        type:
+          type: string
+          example: "restForwarder"
+        _lang_en:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "REST forwarder"
+        _links:
+          type: object
+          properties:
+            rel:
+              type: string
+              example: "self"
+            uri:
+              type: string
+              example: "/api/v1/outbound/forwarderDestinations/474b2a76-738f-4e98-8ea5-339f917bedea"
+    SmtpForwarder:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "474b2a76-738f-4e98-8ea5-339f917bedea"
+        configuration:
+          type: object
+          properties:
+            fromUser:
+              type: string
+              example: "noreply@xc1mail.lenovo.com"
+            recipients:
+              type: string
+              example: "userA@company.com, admin@company.com"
+        creationTimestamp:
+          type: string
+          format: date-time
+          example: "2022-05-02T19:28:14.000Z"
+        description:
+          type: string
+          example: ""
+        name:
+          type: string
+          example: "Test email forwarder"
+        type:
+          type: string
+          example: "smtpForwarder"
+        _lang_en:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "SMTP forwarder"
+        _links:
+          type: object
+          properties:
+            rel:
+              type: string
+              example: "self"
+            uri:
+              type: string
+              example: "/api/v1/outbound/forwarderDestinations/474b2a76-738f-4e98-8ea5-339f917bedea"
+components:
+  schemas:
+    Forwarder:
+      type: object
+      properties:
+        description:
+          type: string
+        filter:
+          type: string
+        forwarderDestination:
+          type: string
+          format: uuid
+        name:
+          type: string
+        state:
+          type: string
+          enum: [enabled, disabled]
+    Forwarder:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          type: string
+        createdTimeStamp:
+          type: string
+          format: date-time
+        description:
+          type: string
+        filter:
+          type: object
+          properties:
+            id:
+              type: string
+            uri:
+              type: string
+        forwarderDestination:
+          type: object
+          properties:
+            id:
+              type: string
+            path:
+              type: string
+            uri:
+              type: string
+        lastUpdatedTimeStamp:
+          type: string
+          format: date-time
+          nullable: true
+        name:
+          type: string
+        state:
+          type: string
+        type:
+          type: string
+        updatedBy:
+          type: string
+          nullable: true
+        _lang_en:
+          type: object
+          properties:
+            state:
+              type: string
+            type:
+              type: string
+        _links:
+          type: object
+          properties:
+            rel:
+              type: string
+            uri:
+              type: string 
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
